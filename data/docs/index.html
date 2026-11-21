@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carte mentale – Support Ticket Analytics</title>
+<style>
+:root{--navy:#173b58;--green:#27865b;--bg:#f4f7fa;--card:#fff;--line:#d8e1e8;--muted:#5d6b78}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#17232d}
+main{max-width:1050px;margin:28px auto;padding:0 18px}
+header{background:var(--navy);color:#fff;border-radius:18px;padding:25px;text-align:center}
+header h1{font-size:clamp(22px,4vw,32px);margin:0 0 8px}header p{margin:0;color:#dceaf5}
+h2{font-size:20px;margin:25px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.phase{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:left;cursor:pointer;color:inherit}
+.phase.active{border:2px solid var(--green);background:#f0faf5}
+.phase strong{display:block;margin:9px 0 5px}.phase small{color:var(--muted)}
+.pill{display:inline-block;font-size:12px;padding:4px 8px;border-radius:20px;background:#edf1f4;color:#43515c}
+.pill.current{background:#dff3e8;color:#17623e}
+.detail{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:14px}
+.detail h3{margin:0 0 12px}.task{display:flex;gap:10px;align-items:flex-start;margin:12px 0;line-height:1.4}
+.task input{margin-top:3px;accent-color:var(--green);width:17px;height:17px}
+.deliverable{background:#f1f5f8;border-radius:10px;padding:12px;margin-top:18px}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.tool{background:#fff;border:1px solid var(--line);padding:14px;border-radius:12px}
+.resume{background:#eaf5ef;border:1px solid #c8e5d4;border-radius:14px;padding:18px;margin-top:22px}
+code{background:#eef2f5;padding:3px 6px;border-radius:5px;overflow-wrap:anywhere}
+footer{color:var(--muted);font-size:13px;margin:20px 0 35px}
+button{border:0;background:var(--navy);color:#fff;padding:10px 14px;border-radius:9px;cursor:pointer;margin:8px 8px 0 0}
+button.secondary{background:#e9eef2;color:#263746}
+@media print{body{background:#fff}.phase,.detail,.tool{break-inside:avoid}button{display:none}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Support Ticket Analytics</h1>
+<p>Carte de progression interactive · Projet Data Analytics</p>
+</header>
+<h2>Les 6 grandes étapes</h2>
+<section class="grid" id="phaseGrid" aria-label="Étapes du projet"></section>
+<section class="detail" aria-live="polite">
+<h3 id="detailTitle"></h3>
+<div id="tasks"></div>
+<div class="deliverable"><b>Livrable attendu</b><div id="deliverable"></div></div>
+<button id="prev" class="secondary">Étape précédente</button>
+<button id="next">Étape suivante</button>
+<button id="reset" class="secondary">Réinitialiser les cases</button>
+</section>
+<h2>Outils du projet</h2>
+<section class="tools">
+<div class="tool"><b>Python / Pandas</b><br><small>Exploration et nettoyage</small></div>
+<div class="tool"><b>SQL / BigQuery</b><br><small>Requêtes et analyses</small></div>
+<div class="tool"><b>Power BI</b><br><small>Visualisation et KPI</small></div>
+<div class="tool"><b>GitHub</b><br><small>Portfolio et publication</small></div>
+</section>
+<section class="resume">
+<b>Point de reprise – prochaine séance</b>
+<p>Étape 1 : exploration des données. Reprendre dans le notebook <code>01_data_exploration.ipynb</code> avec :</p>
+<code>df.isnull().sum()</code>
+<p>Objectif : comprendre les valeurs manquantes avant de passer au nettoyage.</p>
+</section>
+<footer>Les cases cochées sont mémorisées dans ce navigateur sur cet appareil. Le fichier peut être ouvert localement ou ajouté au dépôt GitHub.</footer>
+</main>
+<script>
+const phases=[
+{name:"1. Exploration des données",status:"En cours",tasks:["Charger le fichier CSV dans Python","Examiner les 17 colonnes et les types de données","Identifier les valeurs manquantes","Vérifier les doublons et les incohérences"],deliverable:"Notebook 01_data_exploration.ipynb"},
+{name:"2. Nettoyage des données",status:"À venir",tasks:["Traiter les valeurs manquantes","Convertir les dates et les durées","Vérifier les données incohérentes","Préparer un jeu de données propre"],deliverable:"Notebook 02_data_cleaning.ipynb"},
+{name:"3. Analyse SQL / BigQuery",status:"À venir",tasks:["Préparer les tables","Importer les données nettoyées","Analyser les types et priorités de tickets","Calculer les délais et indicateurs clés"],deliverable:"Scripts SQL et résultats d'analyse"},
+{name:"4. Tableau de bord Power BI",status:"À venir",tasks:["Choisir les indicateurs KPI","Créer les visualisations","Analyser les tendances","Construire le tableau de bord"],deliverable:"Dashboard Power BI"},
+{name:"5. Recherche de tickets similaires",status:"À venir",tasks:["Créer une recherche par mots-clés","Retrouver des tickets comparables","Afficher les résolutions précédentes","Tester l'utilité de l'outil"],deliverable:"Outil Python de recherche"},
+{name:"6. Portfolio et pitch",status:"À venir",tasks:["Publier les livrables sur GitHub","Documenter le projet","Présenter les résultats métier","Préparer le pitch final"],deliverable:"Portfolio GitHub et présentation"}
+];
+let active=0;const storageKey="support-ticket-analytics-progress-v1";
+let checked={};try{checked=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch(e){}
+const grid=document.getElementById("phaseGrid");
+function save(){localStorage.setItem(storageKey,JSON.stringify(checked))}
+function render(){
+grid.innerHTML="";
+phases.forEach((p,i)=>{const b=document.createElement("button");b.className="phase"+(i===active?" active":"");b.innerHTML=`<span class="pill ${i===0?"current":""}">${p.status}</span><strong>${p.name}</strong><small>Cliquer pour voir les tâches</small>`;b.onclick=()=>{active=i;render()};grid.appendChild(b)});
+const p=phases[active];document.getElementById("detailTitle").textContent=p.name;
+const tasks=document.getElementById("tasks");tasks.innerHTML="";
+p.tasks.forEach((t,i)=>{const label=document.createElement("label");label.className="task";const input=document.createElement("input");input.type="checkbox";input.checked=!!checked[active+"-"+i];input.onchange=()=>{checked[active+"-"+i]=input.checked;save()};const span=document.createElement("span");span.textContent=t;label.append(input,span);tasks.appendChild(label)});
+document.getElementById("deliverable").textContent=p.deliverable;
+document.getElementById("prev").disabled=active===0;document.getElementById("next").disabled=active===phases.length-1;
+}
+document.getElementById("prev").onclick=()=>{active=Math.max(0,active-1);render()};
+document.getElementById("next").onclick=()=>{active=Math.min(phases.length-1,active+1);render()};
+document.getElementById("reset").onclick=()=>{if(confirm("Effacer toutes les cases cochées ?")){checked={};save();render()}};
+render();
+</script>
+</body></html>
