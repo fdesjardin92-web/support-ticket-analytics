@@ -10,8 +10,8 @@ L'objectif est de construire une solution combinant Python, Google BigQuery et P
 ## 2. Source des données
 
 **Dataset :** Multilingual Customer Support Tickets  
-**Auteur :** Tobias Bueck  
-**Source :** https://www.kaggle.com/datasets/tobiasbueck/multilingual-customer-support-tickets
+
+**[Voir la carte mentale du projet](https://fdesjardin92-web.github.io/support-ticket-analytics/)**
 
 Le dataset contient des tickets de support client avec notamment :
 - Subject : sujet de la demande
